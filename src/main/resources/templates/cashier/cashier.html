@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="java">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>АРМ кассира</title>
+    <script src="/webjars/jquery/3.6.0/jquery.min.js"></script>
+    <script src="/webjars/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="/webjars/bootstrap/5.1.3/css/bootstrap.min.css">
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+<th:block th:include="/fragments/_menu"/>
+<th:block th:include="/fragments/_cashier_menu"/>
+<div class="container">
+    <div class="d-flex justify-content-center">
+        <form class="d-flex mt-3" th:action="@{/cashier}" method="post">
+            <input class="form-control"
+                   size="50"
+                   type="number"
+                   placeholder="Номер заказа"
+                   name="order_id"
+                   required>&nbsp;
+            <input style="width: 150px" class="btn btn-outline-success" type="submit" name="search" value="Поиск">
+        </form>
+    </div>
+</div>
+
+<div th:if="${order ne null}">
+    <div class="container border border-1 mt-3">
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">Номер заказа</th>
+                <th scope="col">Покупатель</th>
+                <th scope="col">Дата открытия заказа</th>
+                <th scope="col" th:if="${order.orderCloseDate ne null}">Дата закрытия заказа</th>
+                <th scope="col">Сумма заказа</th>
+                <th scope="col">Статус заказа</th>
+                <th th:if="${order.orderStatus.id != 3}" scope="col">Тип оплаты</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td th:text="${order.id}"></td>
+                <td th:text="${(order.user ne null) ? (order.user.surname + ' ' + order.user.name) : 'Гость'}"></td>
+                <td th:text="${order.orderCreateDate}"></td>
+                <td th:if="${order.orderCloseDate ne null}" th:text="${order.orderCreateDate}"></td>
+                <td th:text="${order.orderSum}"></td>
+                <td th:text="${order.orderStatus.name}"></td>
+                <td th:if="${order.orderStatus.id != 3}" th:text="${order.paymentType ne null ? order.paymentType.name : 'Не оплачен'}"></td>
+            </tr>
+            </tbody>
+        </table>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">Наименование товара</th>
+                <th scope="col">Цена</th>
+                <th scope="col">Количество</th>
+                <th scope="col">Сумма</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="position : ${order.getOrderPositions()}">
+                <th scope="row" th:text="${position.productAttribute.product.name}
+                + ', цвет ' + ${position.productAttribute.color.name}
+                + ', размер ' + ${position.productAttribute.size.name}"></th>
+                <td th:text="${position.productAttribute.product.price}"></td>
+                <td th:text="${position.quantity}"></td>
+                <td th:text="${position.productAttribute.product.price} * ${position.quantity}"></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td>ИТОГО:</td>
+                <td th:text="${order.orderSum}"></td>
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div th:if="${order.orderCloseDate == null}">
+            <div class="d-flex justify-content-center mt-2 mb-2">
+                <div class="d-flex justify-content-center"
+                     th:each="paymentType : ${paymentTypes}">
+                    <a th:href="@{/cashier/payment/(orderId=${order.id}, paymentTypeId=${paymentType.id})}">
+                        <button style="width: 200px" class="btn btn-outline-success  btn-block"
+                                th:text="${paymentType.name}"></button>
+                    </a>
+                </div>
+                <div>
+                    <a th:href="@{/cashier/cancelOrder/(orderId=${order.id})}">
+                        <button style="width: 200px" class="btn btn-outline-danger  btn-block">Отмена заказа</button>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div th:if="${orderNotFound ne null}">
+    <div class="container mt-5">
+        <h3 class="d-flex justify-content-center">Заказ не найден</h3>
+    </div>
+</div>
+
+<div th:if="${not #lists.isEmpty(openOrders)}">
+    <h3 class="d-flex justify-content-center">Новые заказы</h3>
+    <div class="container border border-1 mt-3">
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">Номер заказа</th>
+                <th scope="col">Покупатель</th>
+                <th scope="col">Дата открытия заказа</th>
+                <th scope="col">Сумма заказа</th>
+                <th scope="col"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="openOrder : ${openOrders}">
+                <td th:text="${openOrder.id}"></td>
+                <td th:text="${(openOrder.user ne null) ? (openOrder.user.surname + ' ' + openOrder.user.name) : 'Гость'}"></td>
+                <td th:text="${openOrder.orderCreateDate}"></td>
+                <td th:text="${openOrder.orderSum}"></td>
+                <td>
+                    <form th:action="@{/cashier/(order_id=${openOrder.id})}" method="post">
+                        <input type="submit" class="btn btn-sm btn-outline-secondary" value="Открыть"/>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div th:if="${not #lists.isEmpty(closedOrders)}">
+    <h3 class="d-flex justify-content-center">Закрытые заказы</h3>
+    <div class="container border border-1 mt-3">
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">Номер заказа</th>
+                <th scope="col">Покупатель</th>
+                <th scope="col">Дата открытия заказа</th>
+                <th scope="col">Дата закрытия заказа</th>
+                <th scope="col">Сумма заказа</th>
+                <th scope="col">Тип оплаты</th>
+                <th scope="col"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="closedOrder : ${closedOrders}">
+                <td th:text="${closedOrder.id}"></td>
+                <td th:text="${(closedOrder.user ne null) ? (closedOrder.user.surname + ' ' + closedOrder.user.name) : 'Гость'}"></td>
+                <td th:text="${closedOrder.orderCreateDate}"></td>
+                <td th:text="${closedOrder.orderCloseDate}"></td>
+                <td th:text="${closedOrder.orderSum}"></td>
+                <td th:text="${closedOrder.paymentType.name}"></td>
+                <td>
+                    <form th:action="@{/cashier/(order_id=${closedOrder.id})}" method="post">
+                        <input type="submit" class="btn btn-sm btn-outline-secondary" value="Открыть"/>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div th:if="${not #lists.isEmpty(canceledOrders)}">
+    <h3 class="d-flex justify-content-center">Закрытые заказы</h3>
+    <div class="container border border-1 mt-3">
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">Номер заказа</th>
+                <th scope="col">Покупатель</th>
+                <th scope="col">Дата открытия заказа</th>
+                <th scope="col">Дата отмены заказа</th>
+                <th scope="col">Сумма заказа</th>
+                <th scope="col"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="canceledOrder : ${canceledOrders}">
+                <td th:text="${canceledOrder.id}"></td>
+                <td th:text="${(canceledOrder.user ne null) ? (canceledOrder.user.surname + ' ' + canceledOrder.user.name) : 'Гость'}"></td>
+                <td th:text="${canceledOrder.orderCreateDate}"></td>
+                <td th:text="${canceledOrder.orderCloseDate}"></td>
+                <td th:text="${canceledOrder.orderSum}"></td>
+                <td>
+                    <form th:action="@{/cashier/(order_id=${canceledOrder.id})}" method="post">
+                        <input type="submit" class="btn btn-sm btn-outline-secondary" value="Открыть"/>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<th:block th:include="/fragments/_footer"/>
+</body>
+</html>

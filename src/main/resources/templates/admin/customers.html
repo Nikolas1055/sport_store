@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="java">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Пользователи</title>
+    <script type="text/javascript" src="/webjars/jquery/3.6.0/jquery.min.js"></script>
+    <script type="text/javascript" src="/webjars/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="/webjars/bootstrap/5.1.3/css/bootstrap.min.css">
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+<th:block th:include="/fragments/_menu"/>
+<th:block th:include="/fragments/_admin_menu"/>
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Имя</th>
+                    <th>Фамилия</th>
+                    <th>Телефон</th>
+                    <th>Почта</th>
+                    <th>Заказы</th>
+                    <th>Активен</th>
+                    <th>Действия</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="customer : ${customers}">
+                    <td th:text="${customer.getCustomer().getId()}"></td>
+                    <td th:text="${customer.customer.name}"></td>
+                    <td th:text="${customer.customer.surname}"></td>
+                    <td th:text="${customer.customer.phone}"></td>
+                    <td th:text="${customer.customer.email}"></td>
+                    <td th:text="${customer.customer.orders.size()}"></td>
+                    <td th:text="${customer.customer.isActive() ? 'Да' : 'Нет'}"></td>
+                    <td>
+                        <a th:href="@{/admin/editCustomer/(id=${customer.customer.id})}"
+                           class="btn btn-primary btn-sm">Изменить</a>
+                        <a th:href="@{/admin/find/(id=${customer.customer.id})}"
+                           class="btn btn-secondary btn-sm"
+                           data-bs-toggle="modal"
+                           data-bs-target="#changePasswordModal"
+                           data-bs-whatever="edit">Изменить пароль</a>
+                        <a class="btn btn-sm"
+                           th:classappend="${customer.customer.isActive() ? 'btn-danger' : 'btn-success'}"
+                           th:href="@{/admin/block/(id=${customer.customer.id})}"
+                           th:text="${customer.customer.isActive() ? 'Заблокировать' : 'Разблокировать'}"></a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <hr/>
+            <ul class="nav nav-pills">
+                <li class="nav-item" th:each="i : ${#numbers.sequence(0, customers.totalPages - 1)}">
+                    <a th:href="@{/admin/customers/(page=${i})}" th:text="${i}" class="nav-link"
+                       th:classappend="${currentPage == i ? 'active' : ''}"></a>
+                </li>
+            </ul>
+            <div class="d-flex justify-content-center">
+                <a th:href="@{/admin/createCustomer}" class="btn btn-success">Добавить пользователя</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="changePasswordForm">
+    <form th:action="@{/admin/changePassword}" method="post">
+        <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="changePasswordModalLabel">Установить новый пароль</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <input type="hidden" id="id" name="id"/>
+                            <label for="password" class="col-form-label">Пароль:</label>
+                            <input type="password" class="form-control" id="password" name="password" value=""
+                                   required/>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                            <input type="submit" class="btn btn-primary" value="Сохранить"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+    document.getElementById('changePasswordModal').addEventListener('show.bs.modal', function (event) {
+        $.get($(event.relatedTarget).attr('href'), function (data) {
+            $('.changePasswordForm #id').val(data);
+        });
+    });
+</script>
+<th:block th:include="/fragments/_footer"/>
+</body>
+</html>

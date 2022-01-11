@@ -1,0 +1,45 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light border border-1">
+    <div class="container-fluid">
+        <a th:href="@{/}" class="navbar-brand">Магазин спортивной одежды</a>
+        <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <div class="navbar-nav">
+                <a th:href="@{/}" class="nav-item nav-link active">
+                    <button style="width: 120px" type="button" class="btn btn-sm btn-outline-secondary">На главную</button>
+                </a>
+                <a th:if="${#request.isUserInRole('ROLE_ADMIN')}"
+                   th:href="@{/admin}" class="nav-item nav-link">
+                    <button style="width: 120px" type="button" class="btn btn-sm btn-outline-secondary">Администратор</button>
+                </a>
+                <a th:if="${#request.isUserInRole('ROLE_MANAGER')} or ${#request.isUserInRole('ROLE_ADMIN')}"
+                   th:href="@{/manager}" class="nav-item nav-link">
+                    <button style="width: 120px" type="button" class="btn btn-sm btn-outline-secondary">Менеджер</button>
+                </a>
+                <a th:if="${#request.isUserInRole('ROLE_CASHIER')} or ${#request.isUserInRole('ROLE_ADMIN')}"
+                   th:href="@{/cashier}" class="nav-item nav-link">
+                    <button style="width: 120px" type="button" class="btn btn-sm btn-outline-secondary">Кассир</button>
+                </a>
+            </div>
+            <div class="navbar-nav ms-auto" th:if="${#authorization.expression('!isAuthenticated()')}">
+                <h5 class="nav-item navbar-text border-bottom" th:text="${user}"></h5>
+                <a th:href="@{/login}" class="nav-item nav-link">
+                    <button style="width: 120px" type="button" class="btn btn-sm btn-outline-secondary">Вход</button>
+                </a>
+                <a th:href="@{/register}" class="nav-item nav-link">
+                    <button style="width: 120px" type="button" class="btn btn-sm btn-outline-secondary">Регистрация</button>
+                </a>
+            </div>
+            <div class="navbar-nav ms-auto" th:if="${#authorization.expression('isAuthenticated()')}">
+                <h5 class="nav-item navbar-text border-bottom" th:text="${user}"></h5>
+                <a th:href="@{/logout}" class="nav-item nav-link">
+                    <button style="width: 120px" type="button" class="btn btn-sm btn-outline-secondary">Выйти</button>
+                </a>
+                <a th:href="@{/profile}" class="nav-item nav-link">
+                    <button style="width: 120px" type="button" class="btn btn-sm btn-outline-secondary">Профиль</button>
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>

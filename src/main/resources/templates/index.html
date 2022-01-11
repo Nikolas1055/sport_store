@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="java">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Магазин спортивной одежды</title>
+    <script src="/webjars/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="/webjars/bootstrap/5.1.3/css/bootstrap.min.css">
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+<th:block th:include="/fragments/_menu"/>
+<div class="container">
+    <div class="d-flex justify-content-between border-bottom">
+        <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="catalog"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                Каталог товаров
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="catalog">
+                <li th:each="category : ${catalog}">
+                    <a class="dropdown-item" th:text="${category.name}"
+                       th:href="@{/showProducts/(id=${category.id})}"></a>
+                </li>
+            </ul>
+        </div>
+        <form class="d-flex me-2" th:action="@{/searchProductByName}" method="post">
+            <input class="form-control"
+                   name="name"
+                   size="50"
+                   type="search"
+                   placeholder="Название товара"
+                   aria-label="Search"
+                   required>
+            <button style="width: 120px" class="btn btn-outline-success" type="submit">Поиск</button>
+        </form>
+        <a th:href="@{/cart}">
+            <button style="width: 150px" type="button" class="btn btn-outline-secondary">
+                Корзина
+                <span th:if="${not #maps.isEmpty(cart)}" th:text="${cartSize}" class="badge bg-secondary"></span>
+            </button>
+        </a>
+    </div>
+</div>
+
+<div th:if="${product ne null}">
+    <div class="container">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title" th:text="${product.name}"></h3>
+                <div class="row">
+                    <div class="col-lg-5 col-md-5 col-sm-6">
+                        <div class="text-center">
+                            <div id="carouselProduct" class="carousel carousel-dark slide" data-bs-ride="carousel">
+                                <div class="carousel-inner">
+                                    <div class="carousel-item"
+                                         th:each="image : ${product.images}"
+                                         th:classappend="${image == product.images[0] ? 'active' : ''}"
+                                         data-bs-interval="5000">
+                                        <img th:src="@{${image_path} + ${image.image}}"
+                                             class="d-block rounded mx-auto img-fluid"/>
+                                    </div>
+                                </div>
+                                <button class="carousel-control-prev" type="button" data-bs-target="#carouselProduct"
+                                        data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#carouselProduct"
+                                        data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-7 col-md-7 col-sm-6">
+                        <form th:action="@{/addProductAttrToCart}">
+                            <h4 class="card-subtitle mt-5">Описание товара</h4>
+                            <p th:text="${product.description}"></p>
+                            <p th:text="${'Раздел: ' + product.category.name}"></p>
+                            <p th:text="${'Бренд: ' + product.manufacturer.name}"></p>
+                            <div th:if="${not #lists.isEmpty(attributes)}">
+                                <p>Цвета и размеры</p>
+                                <!--accordion-->
+                                <div class="accordion accordion-flush" id="colors">
+                                    <div class="accordion-item" th:each="color : ${attributes}">
+                                        <h2 class="accordion-header"
+                                            th:attr="id='flush-headingOne' + ${color.key.id}">
+                                            <button th:text="${color.key.name}"
+                                                    class="accordion-button collapsed"
+                                                    type="button"
+                                                    data-bs-toggle="collapse"
+                                                    th:attr="data-bs-target='#flush-collapseOne' + ${color.key.id}"
+                                                    aria-expanded="false"
+                                                    aria-controls="flush-collapseOne">
+                                            </button>
+                                        </h2>
+                                        <div th:id="'flush-collapseOne' + ${color.key.id}"
+                                             class="accordion-collapse collapse"
+                                             th:attr="aria-labelledby='flush-headingOne' + ${color.key.id}"
+                                             data-bs-parent="#colors">
+                                            <div class="accordion-body">
+                                                <div class="d-flex flex-row">
+                                                    <div th:each="size : ${color.value}">
+                                                        <input type="radio" class="btn-check" name="attr"
+                                                               th:id="${size.id}"
+                                                               th:value="${size.id}"
+                                                               th:disabled="${size.quantity == 0 ? true : false}"
+                                                               autocomplete="off" required/>
+                                                        <label class="btn btn-outline-secondary"
+                                                               th:attr="for=${size.id}"
+                                                               th:text="${size.size.name}"></label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--accordion-->
+                            </div>
+                            <h2 class="mt-5" th:text="${product.price}"></h2>
+                            <button type="submit" class="btn btn-outline-secondary mb-3">В Корзину</button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:if="${not #lists.isEmpty(popular)}">
+    <h3 class="d-flex justify-content-center">Популярные товары</h3>
+    <div class="container">
+        <div id="carouselExampleDark" class="carousel carousel-dark slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item"
+                     th:each="product : ${popular}"
+                     th:classappend="${product == popular[0] ? 'active' : ''}"
+                     th:with="image=${product.getImages().get(0).image}"
+                     data-bs-interval="5000">
+                    <img th:src="@{${image_path} + ${image}}"
+                         class="d-block rounded mx-auto"
+                         alt="..."
+                         style="max-height: 300px"/>
+                    <div class="carousel-caption d-none d-md-block">
+                        <a style="width: 250px" th:href="@{/productInfo/(id=${product.id})}"
+                           class="btn btn-outline-success"
+                           th:text="${product.name}"></a>
+                    </div>
+                </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleDark"
+                    data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleDark"
+                    data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div th:if="${not #lists.isEmpty(brands)}" class="container">
+    <h3 class="d-flex justify-content-center mt-5">Бренды представленные в магазине</h3>
+    <div class="d-flex justify-content-between border-bottom">
+        <h3 th:each="brand : ${brands}" th:text="${brand.name}" class="m-auto"></h3>
+    </div>
+</div>
+
+<div th:if="${searchResult ne null}">
+    <h3 class="d-flex justify-content-center mt-2 "
+        th:text="'Вы искали: ' + ${searchResult}"></h3>
+    <h3 class="d-flex justify-content-center mt-2 "
+        th:if="${#lists.isEmpty(productsList)}">Ничего не найдено!</h3>
+</div>
+<div th:if="${not #lists.isEmpty(productsList)}" class="container">
+    <h3 class="d-flex justify-content-center mt-2 border-bottom"
+        th:text="'Категория: ' + ${chosenCategoryName}"
+        th:if="${chosenCategoryName ne null}"></h3>
+    <div class="row row-cols-1 row-cols-md-3 g-4"
+         th:if="${not #lists.isEmpty(productsList)}">
+        <div class="col" th:each="productCard : ${productsList}">
+            <div class="card" style="height: 24rem; width: 24rem">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${productCard.name}"></h5>
+                    <p class="card-text" th:text="'Бренд: ' + ${productCard.manufacturer.name}"></p>
+                    <p class="card-text" th:text="'Категория: ' + ${productCard.category.name}"></p>
+                    <p class="card-text" th:text="${productCard.price} + ' руб.'"></p>
+                </div>
+                <div class="text-center">
+                    <img th:src="@{${image_path} + ${productCard.getImages().get(0).image}}"
+                         class="d-block rounded mx-auto mb-3" alt="..."
+                         style="max-height: 10rem; max-width: 18rem">
+                </div>
+                <div class="text-center">
+                    <a style="width: 250px" th:href="@{/productInfo/(id=${productCard.id})}"
+                       class="btn btn-outline-success">Посмотреть</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<th:block th:include="/fragments/_footer"/>
+</body>
+</html>

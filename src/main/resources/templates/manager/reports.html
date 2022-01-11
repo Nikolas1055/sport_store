@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="java">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Отчеты</title>
+    <script type="text/javascript" src="/webjars/bootstrap/5.1.3/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/webjars/bootstrap/5.1.3/css/bootstrap.min.css">
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+<th:block th:include="/fragments/_menu"/>
+<th:block th:include="/fragments/_manager_menu"/>
+
+<div class="container">
+    <h3 class="d-flex justify-content-center mt-3">Отчет о продажах</h3>
+    <div class="container border border-1 mt-3">
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">Период</th>
+                <th scope="col">Закрытые заказы, шт.</th>
+                <th scope="col">Наличный расчет, руб.</th>
+                <th scope="col">Безналичный расчет, руб.</th>
+                <th scope="col">Общая выручка, руб.</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>Сегодня</td>
+                <td th:text="${todayAllOrdersCount}"></td>
+                <td th:text="${paymentTypeCashSumToday}"></td>
+                <td th:text="${paymentTypeCardSumToday}"></td>
+                <td th:text="${totalSumToday}"></td>
+            </tr>
+            <tr>
+                <td>Неделя</td>
+                <td th:text="${weekAllOrdersCount}"></td>
+                <td th:text="${paymentTypeCashSumWeek}"></td>
+                <td th:text="${paymentTypeCardSumWeek}"></td>
+                <td th:text="${totalSumWeek}"></td>
+            </tr>
+            <tr>
+                <td>Месяц</td>
+                <td th:text="${monthAllOrdersCount}"></td>
+                <td th:text="${paymentTypeCashSumMonth}"></td>
+                <td th:text="${paymentTypeCardSumMonth}"></td>
+                <td th:text="${totalSumMonth}"></td>
+            </tr>
+            <tr>
+                <td>Год</td>
+                <td th:text="${yearAllOrdersCount}"></td>
+                <td th:text="${paymentTypeCashSumYear}"></td>
+                <td th:text="${paymentTypeCardSumYear}"></td>
+                <td th:text="${totalSumYear}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<th:block th:include="/fragments/_footer"/>
+</body>
+</html>

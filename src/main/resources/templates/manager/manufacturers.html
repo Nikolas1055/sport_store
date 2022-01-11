@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="java">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Производители</title>
+    <script src="/webjars/jquery/3.6.0/jquery.min.js"></script>
+    <script src="/webjars/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="/webjars/bootstrap/5.1.3/css/bootstrap.min.css">
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+<th:block th:include="/fragments/_menu"/>
+<th:block th:include="/fragments/_manager_menu"/>
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Название производителя</th>
+                    <th>Действия</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="manufacturer : ${manufacturers}">
+                    <td th:text="${manufacturer.id}"></td>
+                    <td th:text="${manufacturer.name}"></td>
+                    <td>
+                        <a th:href="@{/manager/findManufacturer/(id=${manufacturer.id})}" class="btn btn-primary"
+                           data-bs-toggle="modal"
+                           data-bs-target="#createUpdateModal"
+                           data-bs-whatever="edit">Изменить</a>
+                        <a th:href="@{/manager/deleteManufacturer/(id=${manufacturer.id})}" class="btn btn-danger"
+                           data-bs-toggle="modal"
+                           data-bs-target="#deleteModal"
+                           data-bs-whatever="delete">Удалить</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <hr/>
+            <ul class="nav nav-pills">
+                <li class="nav-item" th:each="i : ${#numbers.sequence(0, manufacturers.totalPages - 1)}">
+                    <a th:href="@{/manager/manufacturers/(page=${i})}" th:text="${i}" class="nav-link"
+                       th:classappend="${currentPage == i ? 'active' : ''}"></a>
+                </li>
+            </ul>
+            <div class="d-flex justify-content-center">
+                <button type="button"
+                        class="btn btn-success"
+                        data-bs-toggle="modal"
+                        data-bs-target="#createUpdateModal"
+                        data-bs-whatever="create">
+                    Создать производителя
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="editForm">
+    <form th:action="@{/manager/saveManufacturer}" method="post">
+        <div class="modal fade" id="createUpdateModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="createUpdateModalLabel">Создать или изменить производителя</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="mb-3">
+                            <label for="id" class="col-form-label">ID:</label>
+                            <input type="text" class="form-control" id="id" name="id" value="" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="name" class="col-form-label">Название:</label>
+                            <input type="text" class="form-control" id="name" name="name" value="">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                        <input type="submit" class="btn btn-primary" value="Сохранить"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="alert alert-danger">Действительно удалить производителя?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <a href="" class="btn btn-danger" id="delRef">Удалить</a>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    let createUpdateModal = document.getElementById('createUpdateModal');
+    createUpdateModal.addEventListener('show.bs.modal', function (event) {
+        let button = event.relatedTarget;
+        let action = button.getAttribute('data-bs-whatever');
+        if (action === 'create') {
+            createUpdateModal.querySelector('.modal-title').textContent = 'Создать производителя';
+            $('.editForm #id').val('');
+            $('.editForm #name').val('');
+        } else {
+            createUpdateModal.querySelector('.modal-title').textContent = 'Изменить производителя';
+            let href = $(button).attr('href');
+            $.get(href, function (data) {
+                $('.editForm #id').val(data.id);
+                $('.editForm #name').val(data.name);
+            });
+        }
+    });
+    let deleteModal = document.getElementById('deleteModal');
+    deleteModal.addEventListener('show.bs.modal', function (event) {
+        deleteModal.querySelector('.modal-title').textContent = 'Удалить производителя';
+        $('#deleteModal #delRef').attr('href', $(event.relatedTarget).attr('href'));
+    });
+</script>
+<th:block th:include="/fragments/_footer"/>
+</body>
+</html>

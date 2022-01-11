@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="java">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Товары</title>
+    <script src="/webjars/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="/webjars/bootstrap/5.1.3/css/bootstrap.min.css">
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+<th:block th:include="/fragments/_menu"/>
+<th:block th:include="/fragments/_manager_menu"/>
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Категория</th>
+                    <th>Производитель</th>
+                    <th>Товар</th>
+                    <th>Цена</th>
+                    <th>Рейтинг</th>
+                    <th>Действия</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="product : ${products}">
+                    <td th:text="${product.id}"></td>
+                    <td th:text="${product.category.name}"></td>
+                    <td th:text="${product.manufacturer.name}"></td>
+                    <td th:text="${product.name}" class="font-weight-bold"></td>
+                    <td th:text="${product.price}"></td>
+                    <td th:text="${product.rating}"></td>
+                    <td>
+                        <a th:href="@{/manager/editProduct/(id=${product.id})}"
+                           class="btn btn-outline-primary">Изменить</a>
+                        <a th:href="@{/manager/deleteProduct/(id=${product.id})}"
+                           class="btn btn-outline-danger">Удалить</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <hr/>
+            <ul class="nav nav-pills">
+                <li class="nav-item" th:each="i : ${#numbers.sequence(0, products.totalPages - 1)}">
+                    <a th:href="@{/manager/products/(page=${i})}" th:text="${i}" class="nav-link"
+                       th:classappend="${currentPage == i ? 'active' : ''}"></a>
+                </li>
+            </ul>
+            <div class="d-flex justify-content-center">
+                <a th:href="@{/manager/createProduct}" class="btn btn-success">Создать товар</a>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:include="/fragments/_footer"/>
+</body>
+</html>
