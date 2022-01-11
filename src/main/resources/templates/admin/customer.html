@@ -16,7 +16,6 @@
             <div class="card-body">
                 <h1 class="d-flex justify-content-center">Новый пользователь</h1>
                 <input type="hidden" name="id" th:field="*{id}">
-
                 <div class="mb-0">
                     <label for="name" class="col-form-label">Имя</label>
                     <input type="text" class="form-control" th:field="*{name}" id="name" required/>
@@ -54,7 +53,7 @@
                 </div>
                 <div class="mb-0">
                     <label for="image" class="form-label">Выберите фото</label>
-                    <input class="form-control" type="file" id="image" name="image" accept=".png, .jpeg, .jpg">
+                    <input class="form-control" type="file" id="image" name="image" accept=".png, .jpeg, .jpg"/>
                 </div>
                 <div class="mb-0 d-flex justify-content-center">
                     <input type="submit" value="Сохранить" class="btn btn-success">

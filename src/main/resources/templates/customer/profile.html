@@ -11,6 +11,7 @@
 <body class="bg-light d-flex flex-column min-vh-100">
 <th:block th:include="/fragments/_menu"/>
 <div class="container">
+    <h4 class="mb-3 d-flex justify-content-center">Профиль пользователя</h4>
     <div class="row">
         <div class="col border" style="width: 30rem;">
             <img th:if="${userData.photo.length() > 0}" th:src="@{${userData.photo}}"

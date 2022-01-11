@@ -11,6 +11,7 @@
 <th:block th:include="/fragments/_menu"/>
 <th:block th:include="/fragments/_manager_menu"/>
 <div class="container">
+    <h4 class="d-flex justify-content-center">Товары</h4>
     <div class="card">
         <div class="card-body">
             <table class="table table-hover">
@@ -35,9 +36,9 @@
                     <td th:text="${product.rating}"></td>
                     <td>
                         <a th:href="@{/manager/editProduct/(id=${product.id})}"
-                           class="btn btn-outline-primary">Изменить</a>
+                           class="btn btn-sm btn-outline-primary">Изменить</a>
                         <a th:href="@{/manager/deleteProduct/(id=${product.id})}"
-                           class="btn btn-outline-danger">Удалить</a>
+                           class="btn btn-sm btn-outline-danger">Удалить</a>
                     </td>
                 </tr>
                 </tbody>

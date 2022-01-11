@@ -12,6 +12,7 @@
 <th:block th:include="/fragments/_menu"/>
 <th:block th:include="/fragments/_admin_menu"/>
 <div class="container">
+    <h4 class="d-flex justify-content-center">Пользователи</h4>
     <div class="card">
         <div class="card-body">
             <table class="table table-hover">
@@ -38,14 +39,14 @@
                     <td th:text="${customer.customer.isActive() ? 'Да' : 'Нет'}"></td>
                     <td>
                         <a th:href="@{/admin/editCustomer/(id=${customer.customer.id})}"
-                           class="btn btn-primary btn-sm">Изменить</a>
+                           class="btn btn-outline-primary btn-sm">Изменить</a>
                         <a th:href="@{/admin/find/(id=${customer.customer.id})}"
-                           class="btn btn-secondary btn-sm"
+                           class="btn btn-outline-secondary btn-sm"
                            data-bs-toggle="modal"
                            data-bs-target="#changePasswordModal"
                            data-bs-whatever="edit">Изменить пароль</a>
                         <a class="btn btn-sm"
-                           th:classappend="${customer.customer.isActive() ? 'btn-danger' : 'btn-success'}"
+                           th:classappend="${customer.customer.isActive() ? 'btn-outline-danger' : 'btn-outline-success'}"
                            th:href="@{/admin/block/(id=${customer.customer.id})}"
                            th:text="${customer.customer.isActive() ? 'Заблокировать' : 'Разблокировать'}"></a>
                     </td>

@@ -12,6 +12,7 @@
 <th:block th:include="/fragments/_menu"/>
 <th:block th:include="/fragments/_admin_menu"/>
 <div class="container">
+    <h4 class="d-flex justify-content-center">Статусы заказов</h4>
     <div class="card">
         <div class="card-body">
             <table class="table table-hover">
@@ -27,11 +28,13 @@
                     <td th:text="${status.id}"></td>
                     <td th:text="${status.name}"></td>
                     <td>
-                        <a th:href="@{/admin/findOrderStatus/(id=${status.id})}" class="btn btn-primary"
+                        <a th:href="@{/admin/findOrderStatus/(id=${status.id})}"
+                           class="btn btn-sm btn-outline-primary"
                            data-bs-toggle="modal"
                            data-bs-target="#createUpdateModal"
                            data-bs-whatever="edit">Изменить</a>
-                        <a th:href="@{/admin/deleteOrderStatus/(id=${status.id})}" class="btn btn-danger"
+                        <a th:href="@{/admin/deleteOrderStatus/(id=${status.id})}"
+                           class="btn btn-sm btn-outline-danger"
                            data-bs-toggle="modal"
                            data-bs-target="#deleteModal"
                            data-bs-whatever="delete">Удалить</a>

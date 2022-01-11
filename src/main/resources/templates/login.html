@@ -11,6 +11,7 @@
 <form th:action="@{/j_spring_security_check}" method='POST'>
     <div class="container" style="width: 30rem;">
         <div class="card shadow mt-5">
+            <h5 class="mb-3 d-flex justify-content-center">Введите данные для входа</h5>
             <div class="card-body">
                 <div th:if="${param.error}">
                     <div class="alert alert-danger">

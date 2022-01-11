@@ -51,8 +51,7 @@ public class ManagerController {
     }
 
     @GetMapping
-    public String managerPage(Model model, Principal principal) {
-        model.addAttribute("title", principal.getName());
+    public String managerPage() {
         return "manager/manager";
     }
 
@@ -324,19 +323,6 @@ public class ManagerController {
         model.addAttribute("paymentTypeCashSumYear", sumCashYear);
         model.addAttribute("paymentTypeCardSumYear", sumCardYear);
         model.addAttribute("totalSumYear", sumYear);
-        return "manager/reports";
-    }
-
-    @PostMapping("/reports")
-    public String getDataByDateRange(Model model, @RequestParam String date) {
-//        List<Order> orderList =
-//                orderRepository
-//                        .findOrdersByPaymentTypeIsNotNullAndOrderCloseDateIsAfter(Timestamp.valueOf(LocalDate.now().atStartOfDay()));
-//        model.addAttribute("orders", orderList);
-//        model.addAttribute("chosenDate", date);
-//        model.addAttribute("orderCount",
-//                orderRepository
-//                        .countOrdersByPaymentTypeIsNotNullAndOrderCloseDateIsAfter(Timestamp.valueOf(LocalDate.parse(date).atStartOfDay())));
         return "manager/reports";
     }
 }

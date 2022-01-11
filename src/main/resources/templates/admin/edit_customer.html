@@ -53,19 +53,10 @@
                 </div>
                 <div class="mb-0">
                     <label for="image" class="form-label">Выберите новое фото</label>
-                    <input class="form-control" type="file" id="image" name="image" accept=".png, .jpeg, .jpg">
+                    <input class="form-control" type="file" id="image" name="image" accept=".png, .jpeg, .jpg"/>
                 </div>
                 <div class="mb-0 d-flex justify-content-center">
                     <input type="submit" value="Сохранить" class="btn btn-success">
-                </div>
-                <div th:if="${customer.orders.size() == 0}" class="mb-0 d-flex justify-content-center">
-                    <h5>Список заказов пуст</h5>
-                </div>
-                <div th:if="${customer.orders.size() != 0}" class="mb-0 d-flex justify-content-center">
-                    <h5>Список заказов</h5>
-
-                    <!--TODO-->
-
                 </div>
             </div>
         </div>

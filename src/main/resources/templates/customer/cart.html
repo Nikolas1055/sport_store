@@ -9,7 +9,6 @@
 </head>
 <body class="bg-light d-flex flex-column min-vh-100">
 <th:block th:include="/fragments/_menu"/>
-
 <div th:if="${#maps.isEmpty(cartList)}">
     <div class="container mt-5">
         <h3 class="d-flex justify-content-center">Корзина пуста</h3>
@@ -54,12 +53,10 @@
             </tbody>
         </table>
     </div>
-
     <div class="d-flex justify-content-center">
         <a th:href="@{/makeOrder}" class="btn btn-outline-success">Сделать заказ</a>
         <a th:href="@{/clearCart}" class="btn btn-outline-info">Отменить заказ</a>
     </div>
-
 </div>
 <th:block th:include="/fragments/_footer"/>
 </body>
