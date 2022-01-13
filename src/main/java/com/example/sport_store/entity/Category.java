@@ -1,7 +1,14 @@
 package com.example.sport_store.entity;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import javax.persistence.*;
 
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(schema = "sport_store", catalog = "postgres")
 public class Category {
@@ -10,23 +17,4 @@ public class Category {
     private Long id;
     @Column(unique = true, nullable = false, length = 100)
     private String name;
-
-    public Category() {
-    }
-
-    public Category(String name) {
-        this.name = name;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 }

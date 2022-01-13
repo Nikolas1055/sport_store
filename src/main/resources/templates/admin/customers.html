@@ -30,7 +30,7 @@
                 </thead>
                 <tbody>
                 <tr th:each="customer : ${customers}">
-                    <td th:text="${customer.getCustomer().getId()}"></td>
+                    <td th:text="${customer.customer.id}"></td>
                     <td th:text="${customer.customer.name}"></td>
                     <td th:text="${customer.customer.surname}"></td>
                     <td th:text="${customer.customer.phone}"></td>
@@ -81,7 +81,7 @@
                             <input type="hidden" id="id" name="id"/>
                             <label for="password" class="col-form-label">Пароль:</label>
                             <input type="password" class="form-control" id="password" name="password" value=""
-                                   required/>
+                                   minlength="6" required/>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>

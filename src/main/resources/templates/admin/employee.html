@@ -10,7 +10,7 @@
 <body class="bg-light d-flex flex-column min-vh-100">
 <th:block th:include="/fragments/_menu"/>
 <th:block th:include="/fragments/_admin_menu"/>
-<form th:action="@{/admin/saveEmployee}" th:object="${employee}" th:method="POST" enctype="multipart/form-data">
+<form th:action="@{/admin/saveEmployee}" th:object="${customer}" th:method="POST" enctype="multipart/form-data">
     <div class="container" style="width: 45rem;">
         <div class="card">
             <div class="card-body">
@@ -19,37 +19,51 @@
                 <div class="mb-0">
                     <label for="name" class="col-form-label">Имя</label>
                     <input type="text" class="form-control" th:field="*{name}" id="name" required/>
+                    <div class="alert alert-warning" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
                 </div>
                 <div class="mb-0">
                     <label for="surname" class="col-form-label">Фамилия</label>
                     <input type="text" class="form-control" th:field="*{surname}" id="surname" required/>
+                    <div class="alert alert-warning" th:if="${#fields.hasErrors('surname')}"
+                         th:errors="*{surname}"></div>
                 </div>
                 <div class="mb-0">
                     <label for="phone" class="col-form-label">Телефон</label>
                     <input type="tel" class="form-control" th:field="*{phone}" id="phone" required/>
+                    <div class="alert alert-warning" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></div>
                 </div>
                 <div class="mb-0">
                     <label for="email" class="col-form-label">E-mail</label>
                     <input type="email" class="form-control" th:field="*{email}" id="email" required/>
+                    <div class="alert alert-warning" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
                 </div>
                 <div class="mb-0">
                     <label for="country" class="col-form-label">Страна</label>
                     <input type="text" class="form-control" th:field="*{country}" id="country" required/>
+                    <div class="alert alert-warning" th:if="${#fields.hasErrors('country')}"
+                         th:errors="*{country}"></div>
                 </div>
                 <div class="mb-0">
                     <label for="city" class="col-form-label">Город</label>
                     <input type="text" class="form-control" th:field="*{city}" id="city" required/>
+                    <div class="alert alert-warning" th:if="${#fields.hasErrors('city')}" th:errors="*{city}"></div>
                 </div>
                 <div class="mb-0">
                     <label for="login" class="col-form-label">Логин</label>
                     <div class="input-group">
                         <div class="input-group-text">@</div>
-                        <input type="text" class="form-control" th:field="*{login}" id="login" required/>
+                        <input type="text" class="form-control" th:field="*{login}" id="login"
+                               required/>
                     </div>
+                    <div class="alert alert-warning" th:if="${#fields.hasErrors('login')}"
+                         th:errors="*{login}"></div>
                 </div>
                 <div class="mb-0">
                     <label for="password" class="col-form-label">Пароль</label>
-                    <input type="password" class="form-control" th:field="*{password}" id="password" required/>
+                    <input type="password" class="form-control" th:field="*{password}" id="password"
+                           minlength="6" required/>
+                    <div class="alert alert-warning" th:if="${#fields.hasErrors('password')}"
+                         th:errors="*{password}"></div>
                 </div>
                 <div class="mb-0">
                     <label for="roleId" class="col-form-label">Роль</label>

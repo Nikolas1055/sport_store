@@ -12,6 +12,9 @@ import java.io.IOException;
 
 @Component
 public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
+    /**
+     * Пользовательская логика успешного входа.
+     */
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,

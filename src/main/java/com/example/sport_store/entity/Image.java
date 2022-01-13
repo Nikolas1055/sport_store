@@ -1,7 +1,14 @@
 package com.example.sport_store.entity;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import javax.persistence.*;
 
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(schema = "sport_store", catalog = "postgres")
 public class Image {
@@ -12,32 +19,4 @@ public class Image {
     private String image;
     @ManyToOne
     private Product product;
-
-    public Image() {
-    }
-
-    public Image(String image, Product product) {
-        this.image = image;
-        this.product = product;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
-    }
-
-    public Product getProduct() {
-        return product;
-    }
-
-    public void setProduct(Product product) {
-        this.product = product;
-    }
 }

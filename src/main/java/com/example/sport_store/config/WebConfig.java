@@ -9,6 +9,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableWebMvc
 public class WebConfig implements WebMvcConfigurer {
 
+    /**
+     * Конфигурация источников статических данных
+     */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry

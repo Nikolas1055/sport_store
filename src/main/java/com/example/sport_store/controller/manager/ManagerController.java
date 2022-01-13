@@ -6,10 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -64,15 +67,20 @@ public class ManagerController {
 
     @PostMapping("/saveCategory")
     public String saveCategory(@RequestParam String id, @RequestParam String name) {
-        Category category = id.isEmpty() ? new Category() : categoryRepository.getCategoryById(Long.parseLong(id));
-        category.setName(name);
-        categoryRepository.save(category);
+        if (categoryRepository.findCategoryByName(name).orElse(null) == null) {
+            Category category = id.isEmpty() ? new Category() : categoryRepository.getCategoryById(Long.parseLong(id));
+            category.setName(name);
+            categoryRepository.save(category);
+        }
         return "redirect:/manager/categories";
     }
 
     @GetMapping("/deleteCategory")
     public String deleteCategory(Long id) {
-        categoryRepository.deleteById(id);
+        if (productRepository
+                .findProductByCategory(categoryRepository.findCategoryById(id).orElse(null)).isEmpty()) {
+            categoryRepository.deleteById(id);
+        }
         return "redirect:/manager/categories";
     }
 
@@ -91,15 +99,20 @@ public class ManagerController {
 
     @PostMapping("/saveColor")
     public String saveColor(@RequestParam String id, @RequestParam String name) {
-        Color color = id.isEmpty() ? new Color() : colorRepository.getColorById(Long.parseLong(id));
-        color.setName(name);
-        colorRepository.save(color);
+        if (colorRepository.findColorByName(name).orElse(null) == null) {
+            Color color = id.isEmpty() ? new Color() : colorRepository.getColorById(Long.parseLong(id));
+            color.setName(name);
+            colorRepository.save(color);
+        }
         return "redirect:/manager/colors";
     }
 
     @GetMapping("/deleteColor")
     public String deleteColor(Long id) {
-        colorRepository.deleteById(id);
+        if (productAttributeRepository
+                .findProductAttributeByColor(colorRepository.findById(id).orElse(null)).isEmpty()) {
+            colorRepository.deleteById(id);
+        }
         return "redirect:/manager/colors";
     }
 
@@ -118,16 +131,21 @@ public class ManagerController {
 
     @PostMapping("/saveManufacturer")
     public String saveManufacturer(@RequestParam String id, @RequestParam String name) {
-        Manufacturer manufacturer = id.isEmpty() ? new Manufacturer() :
-                manufacturerRepository.getManufacturerById(Long.parseLong(id));
-        manufacturer.setName(name);
-        manufacturerRepository.save(manufacturer);
+        if (manufacturerRepository.findManufacturerByName(name).orElse(null) == null) {
+            Manufacturer manufacturer = id.isEmpty() ? new Manufacturer() :
+                    manufacturerRepository.getManufacturerById(Long.parseLong(id));
+            manufacturer.setName(name);
+            manufacturerRepository.save(manufacturer);
+        }
         return "redirect:/manager/manufacturers";
     }
 
     @GetMapping("/deleteManufacturer")
     public String deleteManufacturer(Long id) {
-        manufacturerRepository.deleteById(id);
+        if (productRepository
+                .findProductByManufacturer(manufacturerRepository.findById(id).orElse(null)).isEmpty()) {
+            manufacturerRepository.deleteById(id);
+        }
         return "redirect:/manager/manufacturers";
     }
 
@@ -147,16 +165,21 @@ public class ManagerController {
 
     @PostMapping("/saveSize")
     public String saveSize(@RequestParam String id, @RequestParam String name) {
-        Size size = id.isEmpty() ? new Size() :
-                sizeRepository.getSizeById(Long.parseLong(id));
-        size.setName(name);
-        sizeRepository.save(size);
+        if (sizeRepository.findSizeByName(name).orElse(null) == null) {
+            Size size = id.isEmpty() ? new Size() :
+                    sizeRepository.getSizeById(Long.parseLong(id));
+            size.setName(name);
+            sizeRepository.save(size);
+        }
         return "redirect:/manager/sizes";
     }
 
     @GetMapping("/deleteSize")
     public String deleteSize(Long id) {
-        sizeRepository.deleteById(id);
+        if (productAttributeRepository
+                .findProductAttributeBySize(sizeRepository.findById(id).orElse(null)).isEmpty()) {
+            sizeRepository.deleteById(id);
+        }
         return "redirect:/manager/sizes";
     }
 
@@ -182,7 +205,9 @@ public class ManagerController {
     }
 
     @PostMapping("/saveProduct")
-    public String saveProduct(Product product,
+    public String saveProduct(@Valid Product product,
+                              BindingResult result,
+                              Model model,
                               @RequestParam("files") MultipartFile[] files,
                               @RequestParam String id,
                               @RequestParam String name,
@@ -190,8 +215,20 @@ public class ManagerController {
                               @RequestParam String manufacturer,
                               @RequestParam String description,
                               @RequestParam double price) {
+        Product checkNameProduct = productRepository.findProductByName(name).orElse(null);
+        if (checkNameProduct != null) {
+            if (id.isEmpty() || (checkNameProduct.getId() != Long.parseLong(id))) {
+                FieldError error = new FieldError("product", "name",
+                        "Товар с таким названием уже существует");
+                result.addError(error);
+            }
+        }
+        if (result.hasErrors()) {
+            model.addAttribute("categories", categoryRepository.findAll());
+            model.addAttribute("manufacturers", manufacturerRepository.findAll());
+            return "/manager/product";
+        }
         if (!id.isEmpty()) {
-            product = productRepository.getProductById(Long.parseLong(id));
             product.setName(name);
             product.setDescription(description);
             product.setPrice(price);

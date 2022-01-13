@@ -1,7 +1,14 @@
 package com.example.sport_store.entity;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import javax.persistence.*;
 
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(schema = "sport_store", catalog = "postgres", name = "assigned_role",
         uniqueConstraints = {
@@ -17,31 +24,8 @@ public class AssignedRole {
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
-    public AssignedRole() {
-    }
-
     public AssignedRole(Customer customer, Role role) {
         this.customer = customer;
-        this.role = role;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public Customer getCustomer() {
-        return customer;
-    }
-
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
         this.role = role;
     }
 }

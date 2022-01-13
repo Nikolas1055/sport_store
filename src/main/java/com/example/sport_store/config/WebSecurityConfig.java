@@ -16,28 +16,62 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-    @Autowired
-    LoginSuccessHandler loginSuccessHandler;
+    final LoginSuccessHandler loginSuccessHandler;
 
+    @Autowired
+    public WebSecurityConfig(LoginSuccessHandler loginSuccessHandler) {
+        this.loginSuccessHandler = loginSuccessHandler;
+    }
+
+    /**
+     * Настройка безопасности
+     */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable();
+        http
+                .csrf()
+                .disable();
 
-        http.authorizeRequests().antMatchers("/", "/login", "/index", "/register").permitAll();
+        http
+                .authorizeRequests()
+                .antMatchers("/", "/login", "/index", "/register")
+                .permitAll();
 
-        http.authorizeRequests().antMatchers("/admin/**").access("hasRole('ROLE_ADMIN')");
+        http
+                .authorizeRequests()
+                .antMatchers("/admin/**")
+                .access("hasRole('ROLE_ADMIN')");
 
-        http.authorizeRequests().antMatchers("/manager/**").access("hasAnyRole('ROLE_MANAGER', 'ROLE_ADMIN')");
+        http
+                .authorizeRequests()
+                .antMatchers("/manager/**")
+                .access("hasAnyRole('ROLE_MANAGER', 'ROLE_ADMIN')");
 
-        http.authorizeRequests().antMatchers("/cashier/**").access("hasAnyRole('ROLE_CASHIER', 'ROLE_ADMIN')");
+        http
+                .authorizeRequests()
+                .antMatchers("/cashier/**")
+                .access("hasAnyRole('ROLE_CASHIER', 'ROLE_ADMIN')");
 
-        http.authorizeRequests().antMatchers("/profile/**").authenticated();
+        http
+                .authorizeRequests()
+                .antMatchers("/profile/**")
+                .authenticated();
 
-        http.authorizeRequests().antMatchers("/webjars/**").permitAll();
+        http
+                .authorizeRequests()
+                .antMatchers("/webjars/**")
+                .permitAll();
 
-        http.authorizeRequests().and().exceptionHandling().accessDeniedPage("/403");
+        http
+                .authorizeRequests()
+                .and()
+                .exceptionHandling()
+                .accessDeniedPage("/403");
 
-        http.authorizeRequests().and().formLogin()//
+        http
+                .authorizeRequests()
+                .and()
+                .formLogin()
                 .loginProcessingUrl("/j_spring_security_check")
                 .loginPage("/login")
                 .successHandler(loginSuccessHandler)
@@ -49,7 +83,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/index");
 
-        http.authorizeRequests().and()
+        http
+                .authorizeRequests()
+                .and()
                 .rememberMe()
                 .tokenRepository(this.persistentTokenRepository())
                 .rememberMeParameter("remember-me")

@@ -1,11 +1,14 @@
 package com.example.sport_store.entity;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.List;
 
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(schema = "sport_store", catalog = "postgres")
 public class Color {
@@ -14,28 +17,4 @@ public class Color {
     private Long id;
     @Column(unique = true, nullable = false, length = 100)
     private String name;
-
-    public Color() {
-    }
-
-    public Color(String name) {
-        this.name = name;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String toString() {
-        return super.toString();
-    }
 }

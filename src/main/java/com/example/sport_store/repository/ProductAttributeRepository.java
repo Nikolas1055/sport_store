@@ -13,4 +13,8 @@ public interface ProductAttributeRepository extends JpaRepository<ProductAttribu
     List<ProductAttribute> getProductAttributesByProduct(Product product);
 
     Optional<ProductAttribute> findProductAttributeByProductAndColorAndSize(Product product, Color color, Size size);
+
+    Optional<ProductAttribute> findProductAttributeBySize(Size size);
+
+    Optional<ProductAttribute> findProductAttributeByColor(Color color);
 }
