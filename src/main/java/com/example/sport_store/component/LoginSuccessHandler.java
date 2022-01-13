@@ -1,4 +1,4 @@
-package com.example.sport_store.service;
+package com.example.sport_store.component;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

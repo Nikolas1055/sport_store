@@ -18,41 +18,42 @@
                 <input type="hidden" name="id" th:field="*{id}">
                 <div class="mb-0">
                     <label for="name" class="col-form-label">Имя</label>
-                    <input type="text" class="form-control" th:field="*{name}" id="name" required/>
-                    <div class="alert alert-warning" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                    <input type="text" class="form-control" th:field="*{name}" id="name"
+                           minlength="3" maxlength="100" required/>
                 </div>
                 <div class="mb-0">
                     <label for="surname" class="col-form-label">Фамилия</label>
-                    <input type="text" class="form-control" th:field="*{surname}" id="surname" required/>
-                    <div class="alert alert-warning" th:if="${#fields.hasErrors('surname')}"
-                         th:errors="*{surname}"></div>
+                    <input type="text" class="form-control" th:field="*{surname}" id="surname"
+                           minlength="3" maxlength="100" required/>
                 </div>
                 <div class="mb-0">
                     <label for="phone" class="col-form-label">Телефон</label>
-                    <input type="tel" class="form-control" th:field="*{phone}" id="phone" required/>
+                    <input type="tel" class="form-control" th:field="*{phone}" id="phone"
+                           minlength="7" maxlength="20" required/>
                     <div class="alert alert-warning" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></div>
                 </div>
                 <div class="mb-0">
                     <label for="email" class="col-form-label">E-mail</label>
-                    <input type="email" class="form-control" th:field="*{email}" id="email" required/>
+                    <input type="email" class="form-control" th:field="*{email}" id="email"
+                           minlength="5" maxlength="255" required/>
                     <div class="alert alert-warning" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
                 </div>
                 <div class="mb-0">
                     <label for="country" class="col-form-label">Страна</label>
-                    <input type="text" class="form-control" th:field="*{country}" id="country" required/>
-                    <div class="alert alert-warning" th:if="${#fields.hasErrors('country')}"
-                         th:errors="*{country}"></div>
+                    <input type="text" class="form-control" th:field="*{country}" id="country"
+                           minlength="3" maxlength="100" required/>
                 </div>
                 <div class="mb-0">
                     <label for="city" class="col-form-label">Город</label>
-                    <input type="text" class="form-control" th:field="*{city}" id="city" required/>
-                    <div class="alert alert-warning" th:if="${#fields.hasErrors('city')}" th:errors="*{city}"></div>
+                    <input type="text" class="form-control" th:field="*{city}" id="city"
+                           minlength="3" maxlength="100" required/>
                 </div>
                 <div class="mb-0">
                     <label for="login" class="col-form-label">Логин</label>
                     <div class="input-group">
                         <div class="input-group-text">@</div>
-                        <input type="text" class="form-control" th:field="*{login}" id="login" required/>
+                        <input type="text" class="form-control" th:field="*{login}" id="login"
+                               minlength="3" maxlength="100" required/>
                     </div>
                     <div class="alert alert-warning" th:if="${#fields.hasErrors('login')}"
                          th:errors="*{login}"></div>
@@ -60,9 +61,7 @@
                 <div class="mb-0">
                     <label for="password" class="col-form-label">Пароль</label>
                     <input type="password" class="form-control" th:field="*{password}" id="password"
-                           minlength="6" required/>
-                    <div class="alert alert-warning" th:if="${#fields.hasErrors('password')}"
-                         th:errors="*{password}"></div>
+                           minlength="6" maxlength="255" required/>
                 </div>
                 <div class="mb-0">
                     <label for="image" class="form-label">Выберите фото</label>

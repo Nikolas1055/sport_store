@@ -19,11 +19,14 @@ import java.util.Set;
 
 @Service
 public class UserService implements UserDetailsService {
-    @Autowired
-    CustomerRepository customerRepository;
-    @Autowired
-    AssignedRoleRepository assignedRoleRepository;
+    final CustomerRepository customerRepository;
+    final AssignedRoleRepository assignedRoleRepository;
 
+    @Autowired
+    public UserService(CustomerRepository customerRepository, AssignedRoleRepository assignedRoleRepository) {
+        this.customerRepository = customerRepository;
+        this.assignedRoleRepository = assignedRoleRepository;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {

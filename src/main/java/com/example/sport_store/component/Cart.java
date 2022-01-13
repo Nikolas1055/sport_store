@@ -1,4 +1,4 @@
-package com.example.sport_store.model;
+package com.example.sport_store.component;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;

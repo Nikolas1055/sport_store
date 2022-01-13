@@ -1,19 +1,20 @@
 package com.example.sport_store.controller;
 
 import com.example.sport_store.entity.*;
-import com.example.sport_store.model.Cart;
+import com.example.sport_store.component.Cart;
 import com.example.sport_store.repository.*;
+import com.example.sport_store.service.CustomValidationService;
+import com.example.sport_store.service.SaveUpdateCustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import javax.validation.Valid;
 import java.security.Principal;
 import java.sql.Timestamp;
 import java.util.*;
@@ -22,28 +23,49 @@ import java.util.stream.Collectors;
 @Controller
 public class MainController {
     private static final String UPLOAD_FOLDER = "upload/customer_image/";
+    final Cart cart;
+    final OrderRepository orderRepository;
+    final CustomerRepository customerRepository;
+    final CategoryRepository categoryRepository;
+    final RoleRepository roleRepository;
+    final AssignedRoleRepository assignedRoleRepository;
+    final ProductRepository productRepository;
+    final ProductAttributeRepository productAttributeRepository;
+    final ManufacturerRepository manufacturerRepository;
+    final OrderPositionRepository orderPositionRepository;
+    final OrderStatusRepository orderStatusRepository;
+    final SaveUpdateCustomerService saveUpdateCustomerService;
+    final
+    CustomValidationService customValidationService;
+
     @Autowired
-    Cart cart;
-    @Autowired
-    OrderRepository orderRepository;
-    @Autowired
-    CustomerRepository customerRepository;
-    @Autowired
-    CategoryRepository categoryRepository;
-    @Autowired
-    RoleRepository roleRepository;
-    @Autowired
-    AssignedRoleRepository assignedRoleRepository;
-    @Autowired
-    ProductRepository productRepository;
-    @Autowired
-    ProductAttributeRepository productAttributeRepository;
-    @Autowired
-    ManufacturerRepository manufacturerRepository;
-    @Autowired
-    OrderPositionRepository orderPositionRepository;
-    @Autowired
-    OrderStatusRepository orderStatusRepository;
+    public MainController(RoleRepository roleRepository,
+                          Cart cart,
+                          OrderRepository orderRepository,
+                          SaveUpdateCustomerService saveUpdateCustomerService,
+                          CustomerRepository customerRepository,
+                          CategoryRepository categoryRepository,
+                          AssignedRoleRepository assignedRoleRepository,
+                          ProductRepository productRepository,
+                          ProductAttributeRepository productAttributeRepository,
+                          ManufacturerRepository manufacturerRepository,
+                          OrderPositionRepository orderPositionRepository,
+                          OrderStatusRepository orderStatusRepository,
+                          CustomValidationService customValidationService) {
+        this.roleRepository = roleRepository;
+        this.cart = cart;
+        this.orderRepository = orderRepository;
+        this.saveUpdateCustomerService = saveUpdateCustomerService;
+        this.customerRepository = customerRepository;
+        this.categoryRepository = categoryRepository;
+        this.assignedRoleRepository = assignedRoleRepository;
+        this.productRepository = productRepository;
+        this.productAttributeRepository = productAttributeRepository;
+        this.manufacturerRepository = manufacturerRepository;
+        this.orderPositionRepository = orderPositionRepository;
+        this.orderStatusRepository = orderStatusRepository;
+        this.customValidationService = customValidationService;
+    }
 
     @ModelAttribute
     public void addAttributes(Model model, Principal principal) {
@@ -63,7 +85,7 @@ public class MainController {
     }
 
     @GetMapping("/profile")
-    public String adminPage(Model model, Principal principal) {
+    public String profilePageView(Model model, Principal principal) {
         Customer customer = customerRepository.findUserByLogin(principal.getName());
         model.addAttribute("userData", customer);
         model.addAttribute("customerOrders", orderRepository.findOrdersByCustomer(customer));
@@ -71,31 +93,23 @@ public class MainController {
     }
 
     @GetMapping("/register")
-    public String registerNewCustomerView(Model model) {
+    public String registerNewCustomerPageView(Model model) {
         model.addAttribute("customer", new Customer());
         return "register";
     }
 
     @PostMapping("/saveCustomer")
-    public String saveCustomer(Customer customer,
+    public String saveCustomer(@Valid Customer customer,
+                               BindingResult result,
                                MultipartFile image,
-                               @RequestParam String password) {
-        if (!image.isEmpty()) {
-            try {
-                String newImageFileName = UUID.randomUUID().toString().replaceAll("-", "") +
-                        image.getOriginalFilename();
-                Files.copy(image.getInputStream(), Paths.get(UPLOAD_FOLDER, newImageFileName));
-                customer.setPhoto("/" + UPLOAD_FOLDER + newImageFileName.replaceAll(" ", ""));
-            } catch (IOException | RuntimeException e) {
-                e.printStackTrace();
-            }
-        } else {
-            customer.setPhoto("/" + UPLOAD_FOLDER + "no_avatar.png");
+                               @RequestParam String password,
+                               @RequestParam String email,
+                               @RequestParam String phone,
+                               @RequestParam String login) {
+        if (customValidationService.checkCustomerUniqueFields(result, login, phone, email, null).hasErrors()) {
+            return "register";
         }
-        customer.setPassword(new BCryptPasswordEncoder().encode(password));
-        customer.setRegDate(new Date());
-        customerRepository.save(customer);
-        assignedRoleRepository.save(new AssignedRole(customer, roleRepository.getRoleByName("ROLE_USER")));
+        saveUpdateCustomerService.saveNewCustomer(image, customer, password, null);
         return "redirect:/login";
     }
 
@@ -109,7 +123,7 @@ public class MainController {
     }
 
     @GetMapping(value = {"/", "/index"})
-    public String welcomePage(Model model) {
+    public String welcomePageView(Model model) {
         List<Manufacturer> manufacturers = manufacturerRepository.findAll();
         Collections.shuffle(manufacturers);
         model.addAttribute("popular", productRepository.findTop5ByOrderByRatingDesc());
@@ -164,7 +178,7 @@ public class MainController {
     }
 
     @GetMapping("/makeOrder")
-    public String makeOrder(HttpServletRequest request, Principal principal, Model model) {
+    public String makeOrder(HttpServletRequest request, Principal principal) {
         cart.setQuantityError(checkQuantity());
         if (cart.getQuantityError().isEmpty()) {
             Order order = new Order();
@@ -233,7 +247,9 @@ public class MainController {
     }
 
     @PostMapping("/editData")
-    public String saveNewProfileData(MultipartFile image,
+    public String saveNewProfileData(@Valid Customer customer,
+                                     MultipartFile image,
+                                     BindingResult result,
                                      @RequestParam Long id,
                                      @RequestParam String name,
                                      @RequestParam String surname,
@@ -242,25 +258,11 @@ public class MainController {
                                      @RequestParam String country,
                                      @RequestParam String city,
                                      @RequestParam String login) {
-        Customer customer = customerRepository.getCustomerById(id);
-        if (!image.isEmpty()) {
-            try {
-                String newImageFileName = UUID.randomUUID().toString().replaceAll("-", "") +
-                        image.getOriginalFilename();
-                Files.copy(image.getInputStream(), Paths.get(UPLOAD_FOLDER, newImageFileName));
-                customer.setPhoto("/" + UPLOAD_FOLDER + newImageFileName.replaceAll(" ", ""));
-            } catch (IOException | RuntimeException e) {
-                e.printStackTrace();
-            }
+        if (customValidationService.checkCustomerUniqueFields(result, login, phone, email, id).hasErrors()) {
+            return "customer/editProfile";
         }
-        customer.setName(name);
-        customer.setSurname(surname);
-        customer.setPhone(phone);
-        customer.setEmail(email);
-        customer.setCountry(country);
-        customer.setCity(city);
-        customer.setLogin(login);
-        customerRepository.save(customer);
+        saveUpdateCustomerService
+                .updateExistCustomer(customer, image, name, surname, phone, email, country, city, login, null);
         return "redirect:/profile";
     }
 

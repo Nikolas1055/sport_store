@@ -1,6 +1,6 @@
 package com.example.sport_store.config;
 
-import com.example.sport_store.service.LoginSuccessHandler;
+import com.example.sport_store.component.LoginSuccessHandler;
 import com.example.sport_store.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

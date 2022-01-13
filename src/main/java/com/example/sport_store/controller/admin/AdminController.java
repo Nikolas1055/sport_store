@@ -2,29 +2,24 @@ package com.example.sport_store.controller.admin;
 
 import com.example.sport_store.entity.*;
 import com.example.sport_store.repository.*;
+import com.example.sport_store.service.CustomValidationService;
+import com.example.sport_store.service.SaveUpdateCustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.Principal;
-import java.util.Date;
-import java.util.UUID;
 
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
-    private static final String UPLOAD_FOLDER = "upload/customer_image/";
     private static final Integer MAX_ROWS_PER_PAGE = 5;
     final RoleRepository roleRepository;
     final CustomerRepository customerRepository;
@@ -32,6 +27,8 @@ public class AdminController {
     final OrderStatusRepository orderStatusRepository;
     final PaymentTypeRepository paymentTypeRepository;
     final OrderRepository orderRepository;
+    final CustomValidationService customValidationService;
+    final SaveUpdateCustomerService saveUpdateCustomerService;
 
     @Autowired
     public AdminController(RoleRepository roleRepository,
@@ -39,13 +36,17 @@ public class AdminController {
                            AssignedRoleRepository assignedRoleRepository,
                            OrderStatusRepository orderStatusRepository,
                            PaymentTypeRepository paymentTypeRepository,
-                           OrderRepository orderRepository) {
+                           OrderRepository orderRepository,
+                           CustomValidationService customValidationService,
+                           SaveUpdateCustomerService saveUpdateCustomerService) {
         this.roleRepository = roleRepository;
         this.customerRepository = customerRepository;
         this.assignedRoleRepository = assignedRoleRepository;
         this.orderStatusRepository = orderStatusRepository;
         this.paymentTypeRepository = paymentTypeRepository;
         this.orderRepository = orderRepository;
+        this.customValidationService = customValidationService;
+        this.saveUpdateCustomerService = saveUpdateCustomerService;
     }
 
     /**
@@ -110,6 +111,9 @@ public class AdminController {
         return "admin/customer";
     }
 
+    /**
+     * Обработка запроса - сохранить нового сотрудника.
+     */
     @PostMapping("/saveEmployee")
     public String saveEmployee(@Valid Customer customer,
                                BindingResult result,
@@ -120,41 +124,11 @@ public class AdminController {
                                @RequestParam String email,
                                @RequestParam String phone,
                                @RequestParam String login) {
-        if (customerRepository.findCustomerByLogin(login).orElse(null) != null) {
-            FieldError error = new FieldError("customer", "login",
-                    "Пользователь с таким логином уже существует");
-            result.addError(error);
-        }
-        if (customerRepository.findCustomerByEmail(email).orElse(null) != null) {
-            FieldError error = new FieldError("customer", "email",
-                    "Пользователь с таким почтовым адресом уже существует");
-            result.addError(error);
-        }
-        if (customerRepository.findCustomerByPhone(phone).orElse(null) != null) {
-            FieldError error = new FieldError("customer", "phone",
-                    "Пользователь с таким номером телефона уже существует");
-            result.addError(error);
-        }
-        if (result.hasErrors()) {
+        if (customValidationService.checkCustomerUniqueFields(result, login, phone, email, null).hasErrors()) {
             model.addAttribute("roles", roleRepository.findAll());
             return "admin/employee";
         }
-        if (!image.isEmpty()) {
-            try {
-                String newImageFileName = UUID.randomUUID().toString().replaceAll("-", "") +
-                        image.getOriginalFilename();
-                Files.copy(image.getInputStream(), Paths.get(UPLOAD_FOLDER, newImageFileName));
-                customer.setPhoto("/" + UPLOAD_FOLDER + newImageFileName.replaceAll(" ", ""));
-            } catch (IOException | RuntimeException e) {
-                e.printStackTrace();
-            }
-        } else {
-            customer.setPhoto("/" + UPLOAD_FOLDER + "no_avatar.png");
-        }
-        customer.setPassword(new BCryptPasswordEncoder().encode(password));
-        customer.setRegDate(new Date());
-        customerRepository.save(customer);
-        assignedRoleRepository.save(new AssignedRole(customer, roleRepository.getById(Long.parseLong(roleId))));
+        saveUpdateCustomerService.saveNewCustomer(image, customer, password, roleId);
         return "redirect:/admin/employees";
     }
 
@@ -166,40 +140,10 @@ public class AdminController {
                                @RequestParam String email,
                                @RequestParam String phone,
                                @RequestParam String login) {
-        if (customerRepository.findCustomerByLogin(login).orElse(null) != null) {
-            FieldError error = new FieldError("customer", "login",
-                    "Пользователь с таким логином уже существует");
-            result.addError(error);
-        }
-        if (customerRepository.findCustomerByEmail(email).orElse(null) != null) {
-            FieldError error = new FieldError("customer", "email",
-                    "Пользователь с таким почтовым адресом уже существует");
-            result.addError(error);
-        }
-        if (customerRepository.findCustomerByPhone(phone).orElse(null) != null) {
-            FieldError error = new FieldError("customer", "phone",
-                    "Пользователь с таким номером телефона уже существует");
-            result.addError(error);
-        }
-        if (result.hasErrors()) {
+        if (customValidationService.checkCustomerUniqueFields(result, login, phone, email, null).hasErrors()) {
             return "admin/customer";
         }
-        if (!image.isEmpty()) {
-            try {
-                String newImageFileName = UUID.randomUUID().toString().replaceAll("-", "") +
-                        image.getOriginalFilename();
-                Files.copy(image.getInputStream(), Paths.get(UPLOAD_FOLDER, newImageFileName));
-                customer.setPhoto("/" + UPLOAD_FOLDER + newImageFileName.replaceAll(" ", ""));
-            } catch (IOException | RuntimeException e) {
-                e.printStackTrace();
-            }
-        } else {
-            customer.setPhoto("/" + UPLOAD_FOLDER + "no_avatar.png");
-        }
-        customer.setPassword(new BCryptPasswordEncoder().encode(password));
-        customer.setRegDate(new Date());
-        customerRepository.save(customer);
-        assignedRoleRepository.save(new AssignedRole(customer, roleRepository.getRoleByName("ROLE_USER")));
+        saveUpdateCustomerService.saveNewCustomer(image, customer, password, null);
         return "redirect:/admin/customers";
     }
 
@@ -223,6 +167,7 @@ public class AdminController {
     public String updateEmployee(@Valid Customer customer,
                                  MultipartFile image,
                                  BindingResult result,
+                                 Model model,
                                  @RequestParam Long id,
                                  @RequestParam String name,
                                  @RequestParam String surname,
@@ -232,55 +177,12 @@ public class AdminController {
                                  @RequestParam String city,
                                  @RequestParam String login,
                                  @RequestParam String roleId) {
-        Customer checkCustomer = customerRepository.findCustomerByLogin(login).orElse(null);
-        if (checkCustomer != null) {
-            if (!checkCustomer.getId().equals(id)) {
-                FieldError error = new FieldError("customer", "login",
-                        "Пользователь с таким логином уже существует");
-                result.addError(error);
-            }
-        }
-        checkCustomer = customerRepository.findCustomerByEmail(email).orElse(null);
-        if (checkCustomer != null) {
-            if (!checkCustomer.getId().equals(id)) {
-                FieldError error = new FieldError("customer", "email",
-                        "Пользователь с таким почтовым адресом уже существует");
-                result.addError(error);
-            }
-        }
-        checkCustomer = customerRepository.findCustomerByPhone(phone).orElse(null);
-        if (checkCustomer != null) {
-            if (!checkCustomer.getId().equals(id)) {
-                FieldError error = new FieldError("customer", "phone",
-                        "Пользователь с таким номером телефона уже существует");
-                result.addError(error);
-            }
-        }
-        if (result.hasErrors()) {
+        if (customValidationService.checkCustomerUniqueFields(result, login, phone, email, id).hasErrors()) {
+            model.addAttribute("roles", roleRepository.findAll());
             return "admin/edit_employee";
         }
-        customer = customerRepository.getCustomerById(id);
-        if (!image.isEmpty()) {
-            try {
-                String newImageFileName = UUID.randomUUID().toString().replaceAll("-", "") +
-                        image.getOriginalFilename();
-                Files.copy(image.getInputStream(), Paths.get(UPLOAD_FOLDER, newImageFileName));
-                customer.setPhoto("/" + UPLOAD_FOLDER + newImageFileName.replaceAll(" ", ""));
-            } catch (IOException | RuntimeException e) {
-                e.printStackTrace();
-            }
-        }
-        customer.setName(name);
-        customer.setSurname(surname);
-        customer.setPhone(phone);
-        customer.setEmail(email);
-        customer.setCountry(country);
-        customer.setCity(city);
-        customer.setLogin(login);
-        customerRepository.save(customer);
-        AssignedRole assignedRole = assignedRoleRepository.findAssignedRoleByCustomer(customer);
-        assignedRole.setRole(roleRepository.getById(Long.parseLong(roleId)));
-        assignedRoleRepository.save(assignedRole);
+        saveUpdateCustomerService
+                .updateExistCustomer(customer, image, name, surname, phone, email, country, city, login, roleId);
         return "redirect:/admin/employees";
     }
 
@@ -288,7 +190,7 @@ public class AdminController {
     public String updateCustomer(@Valid Customer customer,
                                  MultipartFile image,
                                  BindingResult result,
-                                 @RequestParam String id,
+                                 @RequestParam Long id,
                                  @RequestParam String name,
                                  @RequestParam String surname,
                                  @RequestParam String phone,
@@ -296,52 +198,11 @@ public class AdminController {
                                  @RequestParam String country,
                                  @RequestParam String city,
                                  @RequestParam String login) {
-        Customer checkCustomer = customerRepository.findCustomerByLogin(login).orElse(null);
-        if (checkCustomer != null) {
-            if (!checkCustomer.getId().equals(Long.parseLong(id))) {
-                FieldError error = new FieldError("customer", "login",
-                        "Пользователь с таким логином уже существует");
-                result.addError(error);
-            }
-        }
-        checkCustomer = customerRepository.findCustomerByEmail(email).orElse(null);
-        if (checkCustomer != null) {
-            if (!checkCustomer.getId().equals(Long.parseLong(id))) {
-                FieldError error = new FieldError("customer", "email",
-                        "Пользователь с таким почтовым адресом уже существует");
-                result.addError(error);
-            }
-        }
-        checkCustomer = customerRepository.findCustomerByPhone(phone).orElse(null);
-        if (checkCustomer != null) {
-            if (!checkCustomer.getId().equals(Long.parseLong(id))) {
-                FieldError error = new FieldError("customer", "phone",
-                        "Пользователь с таким номером телефона уже существует");
-                result.addError(error);
-            }
-        }
-        if (result.hasErrors()) {
+        if (customValidationService.checkCustomerUniqueFields(result, login, phone, email, id).hasErrors()) {
             return "admin/edit_customer";
         }
-        customer = customerRepository.getCustomerById(Long.parseLong(id));
-        if (!image.isEmpty()) {
-            try {
-                String newImageFileName = UUID.randomUUID().toString().replaceAll("-", "") +
-                        image.getOriginalFilename();
-                Files.copy(image.getInputStream(), Paths.get(UPLOAD_FOLDER, newImageFileName));
-                customer.setPhoto("/" + UPLOAD_FOLDER + newImageFileName.replaceAll(" ", ""));
-            } catch (IOException | RuntimeException e) {
-                e.printStackTrace();
-            }
-        }
-        customer.setName(name);
-        customer.setSurname(surname);
-        customer.setPhone(phone);
-        customer.setEmail(email);
-        customer.setCountry(country);
-        customer.setCity(city);
-        customer.setLogin(login);
-        customerRepository.save(customer);
+        saveUpdateCustomerService
+                .updateExistCustomer(customer, image, name, surname, phone, email, country, city, login, null);
         return "redirect:/admin/customers";
     }
 
