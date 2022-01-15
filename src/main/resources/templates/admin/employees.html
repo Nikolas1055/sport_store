@@ -96,7 +96,7 @@
 <script>
     document.getElementById('changePasswordModal').addEventListener('show.bs.modal', function (event) {
         $.get($(event.relatedTarget).attr('href'), function (data) {
-            $('.changePasswordForm #id').val(data.id);
+            $('.changePasswordForm #id').val(data);
         });
     });
 </script>
