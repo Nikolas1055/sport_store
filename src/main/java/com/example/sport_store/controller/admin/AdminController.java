@@ -132,6 +132,9 @@ public class AdminController {
         return "redirect:/admin/employees";
     }
 
+    /**
+     * Обработка запроса - сохранить нового покупателя.
+     */
     @PostMapping("/saveCustomer")
     public String saveCustomer(@Valid Customer customer,
                                BindingResult result,
@@ -147,6 +150,9 @@ public class AdminController {
         return "redirect:/admin/customers";
     }
 
+    /**
+     * Обработка запроса - редактирование данных сотрудника.
+     */
     @GetMapping("/editEmployee")
     public String editEmployee(Long id, Model model) {
         Customer customer = customerRepository.getCustomerById(id);
@@ -157,12 +163,18 @@ public class AdminController {
         return "admin/edit_employee";
     }
 
+    /**
+     * Обработка запроса - редактирование данных покупателя.
+     */
     @GetMapping("/editCustomer")
     public String editCustomer(Long id, Model model) {
         model.addAttribute("customer", customerRepository.getCustomerById(id));
         return "admin/edit_customer";
     }
 
+    /**
+     * Обработка запроса - обновить данные сотрудника.
+     */
     @PostMapping("/updateEmployee")
     public String updateEmployee(@Valid Customer customer,
                                  MultipartFile image,
@@ -186,6 +198,9 @@ public class AdminController {
         return "redirect:/admin/employees";
     }
 
+    /**
+     * Обработка запроса - обновить данные покупателя.
+     */
     @PostMapping("/updateCustomer")
     public String updateCustomer(@Valid Customer customer,
                                  MultipartFile image,
@@ -206,6 +221,9 @@ public class AdminController {
         return "redirect:/admin/customers";
     }
 
+    /**
+     * Обработка запроса - заблокировать покупателя или сотрудника.
+     */
     @GetMapping("/block")
     public String blockEmployee(Long id, HttpServletRequest request) {
         Customer customer = customerRepository.getCustomerById(id);
@@ -214,12 +232,20 @@ public class AdminController {
         return "redirect:" + request.getHeader("Referer");
     }
 
+    /**
+     * Обработка запроса - найти покупателя/сотрудника по Id.
+     * (метод требует доработки или изменения в связи с исправлением ошибок).
+     * Заглушка, возвращает id принятый как аргумент.
+     */
     @GetMapping("/find")
     @ResponseBody
     public Long findCustomer(Long id) {
         return id;
     }
 
+    /**
+     * Обработка запроса - изменить пароль покупателя/сотрудника.
+     */
     @PostMapping("/changePassword")
     public String changePassword(@RequestParam String id, @RequestParam String password, HttpServletRequest request) {
         Customer customer = customerRepository.getCustomerById(Long.parseLong(id));
@@ -228,13 +254,18 @@ public class AdminController {
         return "redirect:" + request.getHeader("Referer");
     }
 
-
+    /**
+     * Обработка запроса - вывод списка статусов заказа.
+     */
     @GetMapping(value = "/orderStatuses")
-    public String orderStatusesView(Model model) {
+    public String orderStatusesPageView(Model model) {
         model.addAttribute("statuses", orderStatusRepository.findAll());
         return "/admin/order_statuses";
     }
 
+    /**
+     * Обработка запроса - сохранить статус заказа.
+     */
     @PostMapping("/saveOrderStatus")
     public String saveOrderStatus(@RequestParam String id, @RequestParam String name) {
         if (orderStatusRepository.findOrderStatusByName(name).orElse(null) == null) {
@@ -246,6 +277,9 @@ public class AdminController {
         return "redirect:/admin/orderStatuses";
     }
 
+    /**
+     * Обработка запроса - удалить статус заказа.
+     */
     @GetMapping("/deleteOrderStatus")
     public String deleteOrderStatus(Long id) {
         if (orderRepository
@@ -255,6 +289,9 @@ public class AdminController {
         return "redirect:/admin/orderStatuses";
     }
 
+    /**
+     * Обработка запроса - найти статус заказа по Id.
+     */
     @GetMapping("/findOrderStatus")
     @ResponseBody
     public OrderStatus findOrderStatus(Long id) {
@@ -262,12 +299,18 @@ public class AdminController {
     }
 
 
+    /**
+     * Обработка запроса - вывод списка типов оплаты.
+     */
     @GetMapping(value = "/paymentTypes")
     public String paymentTypesView(Model model) {
         model.addAttribute("types", paymentTypeRepository.findAll());
         return "/admin/payment_types";
     }
 
+    /**
+     * Обработка запроса - сохранить тип оплаты.
+     */
     @PostMapping("/savePaymentType")
     public String savePaymentType(@RequestParam String id, @RequestParam String name) {
         if (paymentTypeRepository.findPaymentTypeByName(name).orElse(null) == null) {
@@ -279,6 +322,9 @@ public class AdminController {
         return "redirect:/admin/paymentTypes";
     }
 
+    /**
+     * Обработка запроса - удалить тип оплаты.
+     */
     @GetMapping("/deletePaymentType")
     public String deletePaymentType(Long id) {
         if (orderRepository
@@ -288,6 +334,9 @@ public class AdminController {
         return "redirect:/admin/paymentTypes";
     }
 
+    /**
+     * Обработка запроса - найти тип оплаты по Id.
+     */
     @GetMapping("/findPaymentType")
     @ResponseBody
     public PaymentType findPaymentType(Long id) {

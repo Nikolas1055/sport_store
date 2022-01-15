@@ -23,6 +23,9 @@ public class CustomValidationService {
         this.customerRepository = customerRepository;
     }
 
+    /**
+     * Метод для проверки на уникальность полей.
+     */
     public BindingResult checkCustomerUniqueFields(BindingResult result, String login, String phone, String email, Long id) {
         if (check(customerRepository.findCustomerByLogin(login).orElse(null), id)) {
             result.addError(new FieldError(OBJECT_NAME, FIELD_LOGIN, LOGIN_ERROR));

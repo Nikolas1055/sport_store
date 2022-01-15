@@ -28,7 +28,7 @@
                    name="name"
                    size="50"
                    type="search"
-                   placeholder="Название товара"
+                   placeholder="Название товара, бренд, категория, цена, цвет ли размер"
                    aria-label="Search"
                    required>
             <button style="width: 120px" class="btn btn-outline-success" type="submit">Поиск</button>
@@ -84,7 +84,7 @@
                                 <p>Цвета и размеры</p>
                                 <!--accordion-->
                                 <div class="accordion accordion-flush" id="colors">
-                                    <div class="accordion-item" th:each="color : ${attributes}">
+                                    <div class="accordion-item border" th:each="color : ${attributes}">
                                         <h2 class="accordion-header"
                                             th:attr="id='flush-headingOne' + ${color.key.id}">
                                             <button th:text="${color.key.name}"

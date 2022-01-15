@@ -27,25 +27,43 @@ import java.util.*;
 @RequestMapping("/manager")
 public class ManagerController {
     private static final String UPLOAD_FOLDER = "upload/product_image/";
-    @Autowired
-    ManufacturerRepository manufacturerRepository;
-    @Autowired
-    CategoryRepository categoryRepository;
-    @Autowired
-    ColorRepository colorRepository;
-    @Autowired
-    SizeRepository sizeRepository;
-    @Autowired
-    ProductRepository productRepository;
-    @Autowired
-    ProductAttributeRepository productAttributeRepository;
-    @Autowired
-    ImageRepository imageRepository;
-    @Autowired
-    CustomerRepository customerRepository;
-    @Autowired
-    OrderRepository orderRepository;
+    final ManufacturerRepository manufacturerRepository;
+    final CategoryRepository categoryRepository;
+    final ColorRepository colorRepository;
+    final SizeRepository sizeRepository;
+    final ProductRepository productRepository;
+    final ProductAttributeRepository productAttributeRepository;
+    final ImageRepository imageRepository;
+    final CustomerRepository customerRepository;
+    final OrderRepository orderRepository;
+    final OrderPositionRepository orderPositionRepository;
 
+    @Autowired
+    public ManagerController(ManufacturerRepository manufacturerRepository,
+                             CategoryRepository categoryRepository,
+                             ColorRepository colorRepository,
+                             SizeRepository sizeRepository,
+                             ProductRepository productRepository,
+                             ProductAttributeRepository productAttributeRepository,
+                             ImageRepository imageRepository,
+                             CustomerRepository customerRepository,
+                             OrderRepository orderRepository,
+                             OrderPositionRepository orderPositionRepository) {
+        this.manufacturerRepository = manufacturerRepository;
+        this.categoryRepository = categoryRepository;
+        this.colorRepository = colorRepository;
+        this.sizeRepository = sizeRepository;
+        this.productRepository = productRepository;
+        this.productAttributeRepository = productAttributeRepository;
+        this.imageRepository = imageRepository;
+        this.customerRepository = customerRepository;
+        this.orderRepository = orderRepository;
+        this.orderPositionRepository = orderPositionRepository;
+    }
+
+    /**
+     * Определение объектов, которые должны быть частью модели(Model).
+     */
     @ModelAttribute
     public void addAttributes(Model model, Principal principal) {
         Customer customer = customerRepository.findUserByLogin(principal.getName());
@@ -53,11 +71,17 @@ public class ManagerController {
                 customer.getSurname() + " " + customer.getName());
     }
 
+    /**
+     * Обработка запроса - главная страница интерфейса менеджера.
+     */
     @GetMapping
-    public String managerPage() {
+    public String managerPageView() {
         return "manager/manager";
     }
 
+    /**
+     * Обработка запроса - вывод списка всех категорий.
+     */
     @GetMapping(value = "/categories")
     public String categoriesView(Model model, @RequestParam(defaultValue = "0") int page) {
         model.addAttribute("categories", categoryRepository.findAll(PageRequest.of(page, 4)));
@@ -65,6 +89,9 @@ public class ManagerController {
         return "/manager/categories";
     }
 
+    /**
+     * Обработка запроса - сохранить категорию.
+     */
     @PostMapping("/saveCategory")
     public String saveCategory(@RequestParam String id, @RequestParam String name) {
         if (categoryRepository.findCategoryByName(name).orElse(null) == null) {
@@ -75,6 +102,9 @@ public class ManagerController {
         return "redirect:/manager/categories";
     }
 
+    /**
+     * Обработка запроса - удалить категорию.
+     */
     @GetMapping("/deleteCategory")
     public String deleteCategory(Long id) {
         if (productRepository
@@ -84,12 +114,18 @@ public class ManagerController {
         return "redirect:/manager/categories";
     }
 
+    /**
+     * Обработка запроса - найти категорию по Id.
+     */
     @GetMapping("/findCategory")
     @ResponseBody
     public Category findCategory(Long id) {
         return categoryRepository.getCategoryById(id);
     }
 
+    /**
+     * Обработка запроса - вывод списка всех цветов.
+     */
     @GetMapping(value = "/colors")
     public String colorsView(Model model, @RequestParam(defaultValue = "0") int page) {
         model.addAttribute("colors", colorRepository.findAll(PageRequest.of(page, 4)));
@@ -97,6 +133,9 @@ public class ManagerController {
         return "/manager/colors";
     }
 
+    /**
+     * Обработка запроса - сохранить цвет.
+     */
     @PostMapping("/saveColor")
     public String saveColor(@RequestParam String id, @RequestParam String name) {
         if (colorRepository.findColorByName(name).orElse(null) == null) {
@@ -107,6 +146,9 @@ public class ManagerController {
         return "redirect:/manager/colors";
     }
 
+    /**
+     * Обработка запроса - удалить цвет.
+     */
     @GetMapping("/deleteColor")
     public String deleteColor(Long id) {
         if (productAttributeRepository
@@ -116,12 +158,18 @@ public class ManagerController {
         return "redirect:/manager/colors";
     }
 
+    /**
+     * Обработка запроса - найти цвет.
+     */
     @GetMapping("/findColor")
     @ResponseBody
     public Color findColor(Long id) {
         return colorRepository.getColorById(id);
     }
 
+    /**
+     * Обработка запроса - вывод списка всех брендов.
+     */
     @GetMapping(value = "/manufacturers")
     public String manufacturersView(Model model, @RequestParam(defaultValue = "0") int page) {
         model.addAttribute("manufacturers", manufacturerRepository.findAll(PageRequest.of(page, 4)));
@@ -129,6 +177,9 @@ public class ManagerController {
         return "/manager/manufacturers";
     }
 
+    /**
+     * Обработка запроса - сохранить бренд.
+     */
     @PostMapping("/saveManufacturer")
     public String saveManufacturer(@RequestParam String id, @RequestParam String name) {
         if (manufacturerRepository.findManufacturerByName(name).orElse(null) == null) {
@@ -140,6 +191,9 @@ public class ManagerController {
         return "redirect:/manager/manufacturers";
     }
 
+    /**
+     * Обработка запроса - удалить бренд.
+     */
     @GetMapping("/deleteManufacturer")
     public String deleteManufacturer(Long id) {
         if (productRepository
@@ -149,13 +203,18 @@ public class ManagerController {
         return "redirect:/manager/manufacturers";
     }
 
+    /**
+     * Обработка запроса - найти бренд.
+     */
     @GetMapping("/findManufacturer")
     @ResponseBody
     public Manufacturer findManufacturer(Long id) {
         return manufacturerRepository.getManufacturerById(id);
     }
 
-
+    /**
+     * Обработка запроса - вывод списка всех размеров.
+     */
     @GetMapping(value = "/sizes")
     public String sizesView(Model model, @RequestParam(defaultValue = "0") int page) {
         model.addAttribute("sizes", sizeRepository.findAll(PageRequest.of(page, 4)));
@@ -163,6 +222,9 @@ public class ManagerController {
         return "/manager/sizes";
     }
 
+    /**
+     * Обработка запроса - сохранить размер.
+     */
     @PostMapping("/saveSize")
     public String saveSize(@RequestParam String id, @RequestParam String name) {
         if (sizeRepository.findSizeByName(name).orElse(null) == null) {
@@ -174,6 +236,9 @@ public class ManagerController {
         return "redirect:/manager/sizes";
     }
 
+    /**
+     * Обработка запроса - удалить размер.
+     */
     @GetMapping("/deleteSize")
     public String deleteSize(Long id) {
         if (productAttributeRepository
@@ -183,12 +248,18 @@ public class ManagerController {
         return "redirect:/manager/sizes";
     }
 
+    /**
+     * Обработка запроса - найти размер.
+     */
     @GetMapping("/findSize")
     @ResponseBody
     public Size findSize(Long id) {
         return sizeRepository.getSizeById(id);
     }
 
+    /**
+     * Обработка запроса - вывод списка всех товаров.
+     */
     @GetMapping(value = "/products")
     public String productsView(Model model, @RequestParam(defaultValue = "0") int page) {
         model.addAttribute("products", productRepository.findAll(PageRequest.of(page, 10)));
@@ -196,14 +267,20 @@ public class ManagerController {
         return "/manager/products";
     }
 
+    /**
+     * Обработка запроса - создать товар.
+     */
     @GetMapping(value = "/createProduct")
-    public String createProduct(Model model) {
+    public String createProductPageView(Model model) {
         model.addAttribute("product", new Product());
         model.addAttribute("categories", categoryRepository.findAll());
         model.addAttribute("manufacturers", manufacturerRepository.findAll());
         return "/manager/product";
     }
 
+    /**
+     * Обработка запроса - сохранить товар.
+     */
     @PostMapping("/saveProduct")
     public String saveProduct(@Valid Product product,
                               BindingResult result,
@@ -254,12 +331,21 @@ public class ManagerController {
         return "redirect:/manager/products";
     }
 
+    /**
+     * Обработка запроса - удалить товар.
+     */
     @GetMapping("/deleteProduct")
     public String deleteProduct(Long id) {
-        productRepository.deleteById(id);
+        Product product = productRepository.getProductById(id);
+        if (orderPositionRepository.findOrderPositionByProductName(product.getName()).isEmpty()) {
+            productRepository.delete(product);
+        }
         return "redirect:/manager/products";
     }
 
+    /**
+     * Обработка запроса - изменить товар и добавить атрибуты.
+     */
     @GetMapping("/editProduct")
     public String editProduct(Long id, Model model) {
         Product product = productRepository.getProductById(id);
@@ -274,6 +360,9 @@ public class ManagerController {
         return "/manager/product_attr";
     }
 
+    /**
+     * Обработка запроса - удалить изображение товара.
+     */
     @GetMapping("/deleteImage")
     public String updateProduct(Long id, HttpServletRequest request) {
         File file = new File(UPLOAD_FOLDER + imageRepository.getById(id).getImage());
@@ -283,6 +372,9 @@ public class ManagerController {
         return "redirect:" + request.getHeader("Referer");
     }
 
+    /**
+     * Обработка запроса - сохранить атрибут товара.
+     */
     @PostMapping("/saveProductAttr")
     public String saveProductAttr(HttpServletRequest request,
                                   @RequestParam String color,
@@ -303,8 +395,11 @@ public class ManagerController {
         return "redirect:" + request.getHeader("Referer");
     }
 
+    /**
+     * Обработка запроса - вывести отчет о продажах.
+     */
     @GetMapping("/reports")
-    public String reportsView(Model model) {
+    public String reportsPageView(Model model) {
         List<Order> orderListToday =
                 orderRepository
                         .findOrdersByPaymentTypeIsNotNullAndOrderCloseDateIsAfter(
@@ -326,40 +421,38 @@ public class ManagerController {
                         .findOrdersByPaymentTypeIsNotNullAndOrderCloseDateIsAfter(
                                 Timestamp.valueOf(LocalDate.now().withDayOfYear(1).atStartOfDay()));
 
-        double sumToday = orderListToday.stream().mapToDouble(Order::getOrderSum).sum();
-        double sumCashToday = orderListToday.stream().filter(order -> order.getPaymentType().getId() == 1L).mapToDouble(Order::getOrderSum).sum();
-        double sumCardToday = orderListToday.stream().filter(order -> order.getPaymentType().getId() == 2L).mapToDouble(Order::getOrderSum).sum();
         model.addAttribute("todayAllOrdersCount", orderListToday.size());
-        model.addAttribute("paymentTypeCashSumToday", sumCashToday);
-        model.addAttribute("paymentTypeCardSumToday", sumCardToday);
-        model.addAttribute("totalSumToday", sumToday);
+        model.addAttribute("paymentTypeCashSumToday", sumCash(orderListToday, 1L));
+        model.addAttribute("paymentTypeCardSumToday", sumCash(orderListToday, 2L));
+        model.addAttribute("totalSumToday", sumCash(orderListToday, 0L));
 
         //week
-        double sumWeek = orderListWeek.stream().mapToDouble(Order::getOrderSum).sum();
-        double sumCashWeek = orderListWeek.stream().filter(order -> order.getPaymentType().getId() == 1L).mapToDouble(Order::getOrderSum).sum();
-        double sumCardWeek = orderListWeek.stream().filter(order -> order.getPaymentType().getId() == 2L).mapToDouble(Order::getOrderSum).sum();
         model.addAttribute("weekAllOrdersCount", orderListWeek.size());
-        model.addAttribute("paymentTypeCashSumWeek", sumCashWeek);
-        model.addAttribute("paymentTypeCardSumWeek", sumCardWeek);
-        model.addAttribute("totalSumWeek", sumWeek);
+        model.addAttribute("paymentTypeCashSumWeek", sumCash(orderListWeek, 1L));
+        model.addAttribute("paymentTypeCardSumWeek", sumCash(orderListWeek, 2L));
+        model.addAttribute("totalSumWeek", sumCash(orderListWeek, 0L));
 
         //month
-        double sumMonth = orderListMonth.stream().mapToDouble(Order::getOrderSum).sum();
-        double sumCashMonth = orderListMonth.stream().filter(order -> order.getPaymentType().getId() == 1L).mapToDouble(Order::getOrderSum).sum();
-        double sumCardMonth = orderListMonth.stream().filter(order -> order.getPaymentType().getId() == 2L).mapToDouble(Order::getOrderSum).sum();
         model.addAttribute("monthAllOrdersCount", orderListMonth.size());
-        model.addAttribute("paymentTypeCashSumMonth", sumCashMonth);
-        model.addAttribute("paymentTypeCardSumMonth", sumCardMonth);
-        model.addAttribute("totalSumMonth", sumMonth);
+        model.addAttribute("paymentTypeCashSumMonth", sumCash(orderListMonth, 1L));
+        model.addAttribute("paymentTypeCardSumMonth", sumCash(orderListMonth, 2L));
+        model.addAttribute("totalSumMonth", sumCash(orderListMonth, 0L));
 
         //year
-        double sumYear = orderListYear.stream().mapToDouble(Order::getOrderSum).sum();
-        double sumCashYear = orderListYear.stream().filter(order -> order.getPaymentType().getId() == 1L).mapToDouble(Order::getOrderSum).sum();
-        double sumCardYear = orderListYear.stream().filter(order -> order.getPaymentType().getId() == 2L).mapToDouble(Order::getOrderSum).sum();
         model.addAttribute("yearAllOrdersCount", orderListYear.size());
-        model.addAttribute("paymentTypeCashSumYear", sumCashYear);
-        model.addAttribute("paymentTypeCardSumYear", sumCardYear);
-        model.addAttribute("totalSumYear", sumYear);
+        model.addAttribute("paymentTypeCashSumYear", sumCash(orderListYear, 1L));
+        model.addAttribute("paymentTypeCardSumYear", sumCash(orderListYear, 2L));
+        model.addAttribute("totalSumYear", sumCash(orderListYear, 0L));
         return "manager/reports";
+    }
+
+    /**
+     * Метод расчета суммы продаж в зависимости от типа оплаты.
+     * 0 - по всему списку, > 0 - выбор из списка записи с определенным Id типа оплаты.
+     */
+    private double sumCash(List<Order> orderList, Long paymentId) {
+        return paymentId.equals(0L) ? orderList.stream().mapToDouble(Order::getOrderSum).sum() :
+                orderList.stream().filter(order -> order.getPaymentType().getId().equals(paymentId))
+                        .mapToDouble(Order::getOrderSum).sum();
     }
 }

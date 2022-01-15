@@ -30,6 +30,9 @@ public class SaveUpdateCustomerService {
         this.roleRepository = roleRepository;
     }
 
+    /**
+     * Метод для сохранения нового покупателя/сотрудника в БД.
+     */
     public void saveNewCustomer(MultipartFile image, Customer customer, String password, String roleId) {
         if (!image.isEmpty()) {
             uploadImage(image, customer);
@@ -46,6 +49,9 @@ public class SaveUpdateCustomerService {
 
     }
 
+    /**
+     * Метод для обновления данных покупателя/сотрудника в БД.
+     */
     public void updateExistCustomer(Customer existCustomer, MultipartFile image, String name, String surname, String phone,
                                     String email, String country, String city, String login, String roleId) {
         Customer customer = customerRepository.getCustomerById(existCustomer.getId());
@@ -67,6 +73,9 @@ public class SaveUpdateCustomerService {
         }
     }
 
+    /**
+     * Метод для сохранения изображения покупателя/сотрудника.
+     */
     private void uploadImage(MultipartFile image, Customer customer) {
         try {
             String newImageFileName = UUID.randomUUID().toString().replaceAll("-", "") +

@@ -3,8 +3,6 @@ package com.example.sport_store.entity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
@@ -32,10 +30,8 @@ public class Product {
     private Category category;
     @ManyToOne
     private Manufacturer manufacturer;
-    @OneToMany(mappedBy = "product")
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OneToMany(mappedBy = "product", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Image> images;
-    @OneToMany(mappedBy = "product")
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OneToMany(mappedBy = "product", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<ProductAttribute> productAttributes;
 }

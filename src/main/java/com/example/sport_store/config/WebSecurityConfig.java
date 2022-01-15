@@ -33,6 +33,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .disable();
 
         http
+                .sessionManagement()
+                .maximumSessions(1)
+                .expiredUrl("/login?invalid-session=true");
+
+        http
                 .authorizeRequests()
                 .antMatchers("/", "/login", "/index", "/register")
                 .permitAll();

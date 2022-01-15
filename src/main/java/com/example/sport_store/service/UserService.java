@@ -28,6 +28,9 @@ public class UserService implements UserDetailsService {
         this.assignedRoleRepository = assignedRoleRepository;
     }
 
+    /**
+     * Метод для загрузки пользователя.
+     */
     @Override
     public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
         Customer customer = customerRepository.findUserByLogin(login);
